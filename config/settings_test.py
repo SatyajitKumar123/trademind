@@ -1,3 +1,5 @@
+# ruff: noqa: F403
+from .settings import *
 from .settings import BASE_DIR
 
 # Override database for tests
