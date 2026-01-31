@@ -1,42 +1,44 @@
 from decimal import Decimal
 
 from django.db import models
-from django.utils import timezone
 
 
 class Trade(models.Model):
     class Side(models.TextChoices):
-        BUY = "BUY", "Buy"
-        SELL = "SELL", "Sell"
+        BUY = "BUY"
+        SELL = "SELL"
 
-    symbol = models.CharField(max_length=20)
+    symbol = models.CharField(max_length=50)
     side = models.CharField(max_length=4, choices=Side.choices)
-
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        help_text="Execution price per unit",
-    )
+    price = models.DecimalField(max_digits=12, decimal_places=4)
+    executed_at = models.DateTimeField()
 
-    executed_at = models.DateTimeField(
-        help_text="Actual trade execution time (exchange time)"
-    )
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=["symbol"]),
-            models.Index(fields=["executed_at"]),
-        ]
-        ordering = ["executed_at"]
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.symbol} | {self.side} | {self.quantity} @ {self.price}"
+        return f"{self.symbol} {self.side} {self.quantity} @ {self.price}"
 
     @property
     def trade_value(self) -> Decimal:
         """
-        Total notational value of the trade.
+        Total notional value of the trade.
+        BUY or SELL does not matter here.
         """
-        return self.price * self.quantity
+        return self.price * Decimal(self.quantity)
+
+
+class RealizedTrade(models.Model):
+    symbol = models.CharField(max_length=50)
+
+    quantity = models.PositiveIntegerField()
+
+    buy_price = models.DecimalField(max_digits=12, decimal_places=4)
+    sell_price = models.DecimalField(max_digits=12, decimal_places=4)
+
+    pnl = models.DecimalField(max_digits=14, decimal_places=4)
+
+    realized_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.symbol} PnL {self.pnl}"
