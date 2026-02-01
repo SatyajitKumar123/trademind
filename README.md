@@ -1,198 +1,113 @@
-
 # TradeMind
 
-TradeMind is a **broker-agnostic trade analytics backend** designed to automate post-trade analysis for retail traders.
-The system ingests raw broker tradebooks (CSV), normalizes them, applies matching logic, and generates **objective performance metrics** such as P&L, win rate, and daily performance.
+TradeMind is a backend-first FinTech analytics platform designed to automate **post-trade analysis** for active traders.
 
-This project is intentionally **backend-first**. UI and charts will be added later.
+Unlike basic trading journals, TradeMind focuses on **correct accounting, performance diagnostics, and risk visibility** — starting from raw broker trade data.
 
 ---
 
-## Core Goals
+## Core Philosophy
 
-* Accept tradebook CSVs from **any broker**
-* Normalize inconsistent broker formats into a single domain model
-* Perform **FIFO trade matching**
-* Persist realized trades and P&L
-* Expose analytics suitable for dashboards and charting
-* Help traders identify **what works and what doesn’t**
+- Backend-first (correctness before UI)
+- Broker-agnostic ingestion
+- Deterministic analytics (no hidden frontend math)
+- Test-driven development
+- Docker-friendly local setup
 
 ---
 
 ## Tech Stack
 
-* **Python 3.12**
-* **Django 6.0**
-* **PostgreSQL**
-* **Docker & Docker Compose**
-* **uv** (dependency & environment management)
-* **pytest + pytest-django**
-* **Ruff + pre-commit**
+- **Python** 3.12
+- **Django** 6.0
+- **PostgreSQL**
+- **Docker & Docker Compose**
+- **uv** (dependency & venv management)
+- **pytest** (testing)
+- **Ruff + pre-commit** (linting & formatting)
 
 ---
 
-## Architecture Overview
+## Current Capabilities ✅
 
-The project follows a **clean, layered backend design**:
+### Trade Ingestion
+- Broker-agnostic CSV ingestion pipeline
+- Adapter-based normalization layer (Zerodha implemented)
+- Validated parsing with explicit error handling
+- Fully test-covered ingestion flow
 
-### 1. Ingestion Layer
+### Trade Accounting
+- FIFO trade matching engine
+  - Supports partial & full exits
+  - Handles multiple buy lots
+- Realized trade persistence
+- Decimal-safe financial calculations (no floats)
 
-* Broker-specific adapters (e.g. Zerodha)
-* Adapter pattern to support new brokers without changing core logic
-* Strict normalization into domain DTOs
+### Analytics & Metrics
+- Daily P&L aggregation
+- Dashboard summary metrics:
+  - Total trades
+  - Win count / Loss count
+  - Win % / Loss %
+  - Net P&L
+  - Average win / Average loss
+  - Expectancy
+- **Equity Curve backend API**
+  - Cumulative P&L over time
+  - Chronologically ordered
+  - Frontend chart–ready output
 
-### 2. Domain Layer
-
-* `TradeDTO` (immutable trade input)
-* FIFO matching engine
-* Realized trade calculation
-
-### 3. Persistence Layer
-
-* Raw trades stored separately
-* Realized trades stored after matching
-* Clear separation between input data and derived analytics
-
-### 4. Analytics Layer
-
-* Daily P&L aggregation
-* Win / loss classification
-* Performance metrics (win %, loss %, net P&L)
-
----
-
-## Current Features (Implemented)
-
-### ✅ Broker-Agnostic CSV Ingestion
-
-* Zerodha tradebook supported
-* Adapter-based normalization
-* Handles inconsistent CSV formats
-
-### ✅ FIFO Matching Engine
-
-* Supports partial and full fills
-* Generates realized trades
-* Fully unit-tested
-
-### ✅ Persistence
-
-* `Trade` model for raw trades
-* `RealizedTrade` model for matched trades
-* PostgreSQL-backed
-
-### ✅ Performance Metrics
-
-* Daily P&L aggregation
-* Winning vs losing trades
-* Win percentage & loss percentage
-
-### ✅ Test Coverage
-
-* FIFO engine tests
-* Ingestion pipeline tests
-* Metrics calculation tests
-* Model-level tests
-
-All core business logic is validated using **pytest**.
+### Engineering Quality
+- Full unit test coverage for:
+  - FIFO engine
+  - Ingestion pipeline
+  - Persistence layer
+  - Analytics services
+- Clean domain separation:
+  - Models
+  - DTOs
+  - Services
+  - Analytics engines
+- Dockerized Django + PostgreSQL setup for local development
 
 ---
 
-## Local Development
+## API Endpoints (Current)
 
-### Prerequisites
+| Endpoint | Description |
+|--------|-------------|
+| `/dashboard/summary/` | High-level performance metrics |
+| `/dashboard/equity-curve/` | Cumulative equity curve data |
 
-* Python 3.12
-* Docker & Docker Compose
-* uv
-
-### Run Locally (without Docker)
-
-```bash
-uv venv
-uv sync
-uv run python manage.py migrate
-uv run python manage.py runserver
-```
+All APIs are **read-only**, deterministic, and frontend-ready.
 
 ---
 
-## Docker Development
+## What TradeMind Helps Answer
 
-### Start Services
-
-```bash
-docker compose up -d --build
-```
-
-### Run Migrations
-
-```bash
-docker compose exec web python manage.py migrate
-```
-
-### Run Server
-
-```bash
-docker compose exec web python manage.py runserver
-```
-
-### Stop Services
-
-```bash
-docker compose down
-```
+- Am I actually profitable or just lucky?
+- How consistent is my equity growth?
+- Where do I give back profits?
+- Is my strategy statistically sound?
+- What is my real risk profile?
 
 ---
 
-## Testing
+## Roadmap (Next)
 
-Run all tests locally:
-
-```bash
-uv run pytest
-```
-
-Tests cover:
-
-* FIFO trade matching
-* Ingestion pipeline
-* Persistence
-* Performance metrics
+- Risk & drawdown analytics (max drawdown, profit factor, risk–reward)
+- Strategy-level tagging & analytics
+- Async CSV ingestion with background workers
+- Frontend dashboards (Chart.js / ECharts)
+- Multi-user authentication & isolation
 
 ---
 
-## What’s Next
+## Status
 
-### 🔜 Backend Dashboard APIs
-
-* Aggregated metrics endpoint
-* Time-series P&L data
-* Symbol-level performance
-
-### 🔜 Frontend (Later)
-
-* Chart.js / ECharts integration
-* CSV upload UI
-* Interactive dashboards
-
-### 🔜 Strategy-Level Analysis
-
-* Pattern detection
-* Risk metrics
-* Mistake identification
+🟢 **Active development**
+This project is being built incrementally with production-grade practices and transparent progress updates.
 
 ---
 
-## Philosophy
-
-TradeMind is built with the belief that:
-
-> **Correct data and correct logic matter more than fancy dashboards.**
-
-The system is designed to be:
-
-* Deterministic
-* Testable
-* Extensible
-* Honest about trading performance
+> TradeMind is intentionally built slow and correct — because trading analytics done wrong is worse than no analytics at all.
