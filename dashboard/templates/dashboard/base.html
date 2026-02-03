@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TradeMind Dashboard</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'dashboard-home' %}">Home</a> |
+        <a href="{% url 'dashboard-equity' %}">Equity Curve</a> |
+        <a href="{% url 'dashboard-risk' %}">Risk Metrics</a> |
+        <a href="{% url 'dashboard-upload' %}">Upload CSV</a>
+    </nav>
+
+    <hr>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        <hr>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<h2>Dashboard Overview</h2>
+
+<h3>Summary</h3>
+<ul>
+    <li>Total Trades: {{ summary.total_trades }}</li>
+    <li>Win Rate: {{ summary.win_rate }}%</li>
+    <li>Net P&L: {{ summary.net_pnl }}</li>
+</ul>
+
+<h3>Risk Metrics</h3>
+<ul>
+    <li>Max Drawdown: {{ risk.max_drawdown }}</li>
+    <li>Profit Factor: {{ risk.profit_factor }}</li>
+    <li>Risk-Reward Ratio: {{ risk.risk_reward_ratio }}</li>
+</ul>
+{% endblock %}

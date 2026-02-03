@@ -1,0 +1,13 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<h2>Equity Curve</h2>
+
+<ul>
+    {% for point in curve %}
+        <li>{{ point.timestamp }} → {{ point.equity }}</li>
+    {% endfor %}
+</ul>
+
+<p>(Chart.js will replace this list later)</p>
+{% endblock %}
