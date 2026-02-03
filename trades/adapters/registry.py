@@ -10,3 +10,7 @@ def get_adapter(broker: str):
         return _ADAPTERS[broker.lower()]
     except KeyError as exc:
         raise ValueError(f"Unsupported broker: {broker}") from exc
+
+
+def list_supported_brokers() -> list[str]:
+    return list(_ADAPTERS.keys())
