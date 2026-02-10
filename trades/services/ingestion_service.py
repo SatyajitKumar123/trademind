@@ -1,21 +1,24 @@
-from io import TextIOBase
+from django.db import transaction
 
-from trades.adapters.registry import get_adapter
-from trades.domain.trade_dto import TradeDTO
-from trades.models import Trade
-from trades.services.analyze_trades import analyze_trades
+from trades.models import RealizedTrade, Trade
 
 
 def ingest_tradebook(
     *,
-    file: TextIOBase,
+    file,
     broker: str,
 ) -> int:
     """
     Ingests a broker tradebook CSV and performs full analysis.
 
-    Returns number of realized trades created.
+    This operation is idempotent:
+    previous trades and analytics are cleared before ingest.
     """
+
+    from trades.adapters.registry import get_adapter
+    from trades.domain.trade_dto import TradeDTO
+    from trades.services.analyze_trades import analyze_trades
+
     adapter = get_adapter(broker)
     reader = adapter.get_reader(file)
 
@@ -25,19 +28,20 @@ def ingest_tradebook(
         dto = adapter.normalize(row)
         trade_dtos.append(dto)
 
-    # Persist raw trades
-    Trade.objects.bulk_create(
-        [
-            Trade(
-                symbol=t.symbol,
-                side=t.side,
-                quantity=t.quantity,
-                price=t.price,
-                executed_at=t.executed_at,
-            )
-            for t in trade_dtos
-        ]
-    )
+    with transaction.atomic():
+        Trade.objects.all().delete()
+        RealizedTrade.objects.all().delete()
 
-    # Analyze + persist realized P&L
-    return analyze_trades(trade_dtos)
+        Trade.objects.bulk_create(
+            [
+                Trade(
+                    symbol=t.symbol,
+                    side=t.side,
+                    quantity=t.quantity,
+                    price=t.price,
+                    executed_at=t.executed_at,
+                )
+                for t in trade_dtos
+            ]
+        )
+        return analyze_trades(trade_dtos)
