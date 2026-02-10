@@ -3,11 +3,49 @@
 {% block content %}
 <h2>Equity Curve</h2>
 
-<ul>
-    {% for point in curve %}
-        <li>{{ point.timestamp }} → {{ point.equity }}</li>
-    {% endfor %}
-</ul>
+<canvas id="equityChart" width="900" height="400"></canvas>
 
-<p>(Chart.js will replace this list later)</p>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const dataPoints = {{ curve|safe }};
+
+    const labels = dataPoints.map(p => p.timestamp);
+    const equityValues = dataPoints.map(p => p.equity);
+
+    const ctx = document.getElementById("equityChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Equity Curve",
+                data: equityValues,
+                borderWidth: 2,
+                tension: 0.25,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: "Time"
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: "Equity (PnL)"
+                    }
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

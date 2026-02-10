@@ -59,13 +59,18 @@ def dashboard_home_view(request):
 
 
 def equity_curve_view(request):
-    return render(
-        request,
-        "dashboard/equity_curve.html",
-        {
-            "curve": get_equity_curve(),
-        },
-    )
+    curve = get_equity_curve()
+
+    context = {
+        "curve": [
+            {
+                "timestamp": p["timestamp"].isoformat(),
+                "equity": float(p["equity"]),
+            }
+            for p in curve
+        ]
+    }
+    return render(request, "dashboard/equity_curve.html", context)
 
 
 def risk_metrics_view(request):
