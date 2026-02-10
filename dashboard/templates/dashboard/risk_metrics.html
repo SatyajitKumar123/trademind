@@ -3,11 +3,87 @@
 {% block content %}
 <h2>Risk Metrics</h2>
 
-<ul>
-    <li>Max Drawdown: {{ risk.max_drawdown }}</li>
-    <li>Profit Factor: {{ risk.profit_factor }}</li>
-    <li>Risk-Reward Ratio: {{ risk.risk_reward_ratio }}</li>
-    <li>Largest Win: {{ risk.largest_win }}</li>
-    <li>Largest Loss: {{ risk.largest_loss }}</li>
-</ul>
+<style>
+    .risk-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .risk-card {
+        background: #ffffff;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 16px;
+    }
+
+    .risk-title {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 6px;
+    }
+
+    .risk-value {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .risk-desc {
+        font-size: 13px;
+        color: #777;
+        line-height: 1.4;
+    }
+</style>
+
+<div class="risk-grid">
+
+    <div class="risk-card">
+        <div class="risk-title">Max Drawdown</div>
+        <div class="risk-value">{{ risk.max_drawdown }}</div>
+        <div class="risk-desc">
+            Largest peak-to-trough loss in equity.
+            Shows how much capital was at risk during bad periods.
+        </div>
+    </div>
+
+    <div class="risk-card">
+        <div class="risk-title">Profit Factor</div>
+        <div class="risk-value">{{ risk.profit_factor }}</div>
+        <div class="risk-desc">
+            Ratio of gross profits to gross losses.
+            Values above 1 indicate a profitable system.
+        </div>
+    </div>
+
+    <div class="risk-card">
+        <div class="risk-title">Risk–Reward Ratio</div>
+        <div class="risk-value">{{ risk.risk_reward_ratio }}</div>
+        <div class="risk-desc">
+            Average win divided by average loss.
+            Higher values mean fewer wins are needed to stay profitable.
+        </div>
+    </div>
+
+    <div class="risk-card">
+        <div class="risk-title">Largest Winning Trade</div>
+        <div class="risk-value">{{ risk.largest_win }}</div>
+        <div class="risk-desc">
+            Best single trade outcome.
+            Helps identify dependency on outliers.
+        </div>
+    </div>
+
+    <div class="risk-card">
+        <div class="risk-title">Largest Losing Trade</div>
+        <div class="risk-value">{{ risk.largest_loss }}</div>
+        <div class="risk-desc">
+            Worst single trade loss.
+            Useful for validating position sizing rules.
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}
