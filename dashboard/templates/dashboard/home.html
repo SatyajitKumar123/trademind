@@ -3,17 +3,99 @@
 {% block content %}
 <h2>Dashboard Overview</h2>
 
-<h3>Summary</h3>
-<ul>
-    <li>Total Trades: {{ summary.total_trades }}</li>
-    <li>Win Rate: {{ summary.win_rate }}%</li>
-    <li>Net P&L: {{ summary.net_pnl }}</li>
-</ul>
+<style>
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
 
-<h3>Risk Metrics</h3>
-<ul>
-    <li>Max Drawdown: {{ risk.max_drawdown }}</li>
-    <li>Profit Factor: {{ risk.profit_factor }}</li>
-    <li>Risk-Reward Ratio: {{ risk.risk_reward_ratio }}</li>
-</ul>
+    .kpi-card {
+        border: 1px solid #ddd;
+        padding: 16px;
+        border-radius: 6px;
+        background: #fafafa;
+    }
+
+    .kpi-title {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 6px;
+    }
+
+    .kpi-value {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .section {
+        margin-bottom: 32px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+<div class="section">
+    <h3>Core Metrics</h3>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">Total Trades</div>
+            <div class="kpi-value">{{ summary.total_trades }}</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Win Rate</div>
+            <div class="kpi-value">{{ summary.win_rate }}%</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Net P&amp;L</div>
+            <div class="kpi-value">{{ summary.net_pnl }}</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Expectancy</div>
+            <div class="kpi-value">{{ summary.expectancy }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h3>Risk Metrics</h3>
+
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Max Drawdown</td>
+            <td>{{ risk.max_drawdown }}</td>
+        </tr>
+        <tr>
+            <td>Profit Factor</td>
+            <td>{{ risk.profit_factor }}</td>
+        </tr>
+        <tr>
+            <td>Risk-Reward Ratio</td>
+            <td>{{ risk.risk_reward_ratio }}</td>
+        </tr>
+    </table>
+</div>
+
 {% endblock %}
