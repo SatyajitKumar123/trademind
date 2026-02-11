@@ -1,24 +1,48 @@
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
+from drf_spectacular.utils import extend_schema
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from dashboard.services.equity_curve_service import get_equity_curve
 from dashboard.services.risk_metrics_service import calculate_risk_metrics
 from dashboard.services.summary_service import get_dashboard_summary
 
 
-@require_GET
-def dashboard_summary_view(request):
-    data = get_dashboard_summary()
-    return JsonResponse(data=data)
+@extend_schema(
+    summary="Dashboard Summary",
+    description="Returns overall performance summary including PnL, win rate, etc.",
+)
+class DashboardSummaryAPI(APIView):
+    def get(self, request):
+        data = get_dashboard_summary()
+
+        if not data:
+            return Response(
+                {"detail": "No summary data available"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(data, status=status.HTTP_200_OK)
 
 
-@require_GET
-def equity_curve_view(request):
-    data = get_equity_curve()
-    return JsonResponse(data=data, safe=False)
+class EquityCurveAPI(APIView):
+    def get(self, request):
+        data = get_equity_curve()
+
+        if not data:
+            return Response(
+                {"detail": "No equity curve data available"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(data, status=status.HTTP_200_OK)
 
 
-@require_GET
-def risk_metrics_view(request):
-    data = calculate_risk_metrics()
-    return JsonResponse(data=data)
+class RiskMetricsAPI(APIView):
+    def get(self, request):
+        data = calculate_risk_metrics()
+
+        if not data:
+            return Response(
+                {"detail": "No risk metrics available"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(data, status=status.HTTP_200_OK)

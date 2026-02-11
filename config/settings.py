@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     # Local apps
     "trades",
     "dashboard",
+    # DjangoFrameword
+    "rest_framework",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -92,11 +95,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "trademind"),
-        "USER": os.getenv("POSTGRES_USER", "tradeuser"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "trade123"),
-        "HOST": os.getenv("POSTGRES_HOST", "localhost"),
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
     }
 }
 
@@ -135,3 +138,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "TradeMind API",
+    "DESCRIPTION": "Broker-agnostic trade analytics backend",
+    "VERSION": "1.0.0",
+}
