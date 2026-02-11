@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,6 +8,10 @@ from dashboard.services.risk_metrics_service import calculate_risk_metrics
 from dashboard.services.summary_service import get_dashboard_summary
 
 
+@extend_schema(
+    summary="Dashboard Summary",
+    description="Returns overall performance summary including PnL, win rate, etc.",
+)
 class DashboardSummaryAPI(APIView):
     def get(self, request):
         data = get_dashboard_summary()

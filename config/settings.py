@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "dashboard",
     # DjangoFrameword
     "rest_framework",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -142,4 +143,11 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "TradeMind API",
+    "DESCRIPTION": "Broker-agnostic trade analytics backend",
+    "VERSION": "1.0.0",
 }
