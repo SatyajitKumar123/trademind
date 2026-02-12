@@ -5,6 +5,7 @@ from trades.models import RealizedTrade, Trade
 
 def ingest_tradebook(
     *,
+    user,
     file,
     broker: str,
 ) -> int:
@@ -29,12 +30,13 @@ def ingest_tradebook(
         trade_dtos.append(dto)
 
     with transaction.atomic():
-        Trade.objects.all().delete()
-        RealizedTrade.objects.all().delete()
+        Trade.objects.filter(user=user).delete()
+        RealizedTrade.objects.filter(user=user).delete()
 
         Trade.objects.bulk_create(
             [
                 Trade(
+                    user=user,
                     symbol=t.symbol,
                     side=t.side,
                     quantity=t.quantity,
@@ -44,4 +46,4 @@ def ingest_tradebook(
                 for t in trade_dtos
             ]
         )
-        return analyze_trades(trade_dtos)
+        return analyze_trades(trade_dtos, user=user)

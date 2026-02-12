@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     # Local apps
     "trades",
     "dashboard",
+    "accounts",
     # DjangoFrameword
     "rest_framework",
     "drf_spectacular",
@@ -73,7 +74,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -151,3 +152,10 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Broker-agnostic trade analytics backend",
     "VERSION": "1.0.0",
 }
+
+
+AUTH_USER_MODEL = "accounts.User"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard-home"
+LOGOUT_REDIRECT_URL = "login"

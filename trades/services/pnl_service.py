@@ -4,9 +4,10 @@ from trades.domain.realized_pnl import RealizedPnL
 from trades.models import RealizedTrade
 
 
-def persist_realized_pnl(results: Iterable[RealizedPnL]) -> int:
+def persist_realized_pnl(results: Iterable[RealizedPnL], *, user) -> int:
     records = [
         RealizedTrade(
+            user=user,
             symbol=r.symbol,
             quantity=r.quantity,
             buy_price=r.buy_price,

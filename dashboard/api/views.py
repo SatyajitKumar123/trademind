@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -13,36 +14,24 @@ from dashboard.services.summary_service import get_dashboard_summary
     description="Returns overall performance summary including PnL, win rate, etc.",
 )
 class DashboardSummaryAPI(APIView):
-    def get(self, request):
-        data = get_dashboard_summary()
+    permission_classes = [IsAuthenticated]
 
-        if not data:
-            return Response(
-                {"detail": "No summary data available"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def get(self, request):
+        data = get_dashboard_summary(request.user)
         return Response(data, status=status.HTTP_200_OK)
 
 
 class EquityCurveAPI(APIView):
-    def get(self, request):
-        data = get_equity_curve()
+    permission_classes = [IsAuthenticated]
 
-        if not data:
-            return Response(
-                {"detail": "No equity curve data available"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def get(self, request):
+        data = get_equity_curve(request.user)
         return Response(data, status=status.HTTP_200_OK)
 
 
 class RiskMetricsAPI(APIView):
-    def get(self, request):
-        data = calculate_risk_metrics()
+    permission_classes = [IsAuthenticated]
 
-        if not data:
-            return Response(
-                {"detail": "No risk metrics available"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+    def get(self, request):
+        data = calculate_risk_metrics(request.user)
         return Response(data, status=status.HTTP_200_OK)

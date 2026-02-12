@@ -1,6 +1,7 @@
 from io import TextIOWrapper
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -11,6 +12,7 @@ from trades.adapters.registry import list_supported_brokers
 from trades.services.ingestion_service import ingest_tradebook
 
 
+@login_required
 @require_http_methods(["GET", "POST"])
 def upload_trades_view(request):
     if request.method == "POST":
@@ -24,6 +26,7 @@ def upload_trades_view(request):
         try:
             text_file = TextIOWrapper(csv_file.file, encoding="utf-8")
             realized_count = ingest_tradebook(
+                user=request.user,
                 file=text_file,
                 broker=broker,
             )
@@ -47,19 +50,21 @@ def upload_trades_view(request):
     )
 
 
+@login_required
 def dashboard_home_view(request):
     return render(
         request,
         "dashboard/home.html",
         {
-            "summary": get_dashboard_summary(),
-            "risk": calculate_risk_metrics(),
+            "summary": get_dashboard_summary(request.user),
+            "risk": calculate_risk_metrics(request.user),
         },
     )
 
 
+@login_required
 def equity_curve_view(request):
-    curve = get_equity_curve()
+    curve = get_equity_curve(request.user)
 
     context = {
         "curve": [
@@ -73,11 +78,12 @@ def equity_curve_view(request):
     return render(request, "dashboard/equity_curve.html", context)
 
 
+@login_required
 def risk_metrics_view(request):
     return render(
         request,
         "dashboard/risk_metrics.html",
         {
-            "risk": calculate_risk_metrics(),
+            "risk": calculate_risk_metrics(request.user),
         },
     )
