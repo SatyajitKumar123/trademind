@@ -1,7 +1,27 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
 <h2>Login</h2>
-<form method="post">
+
+<form method="post" style="max-width:400px;">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <div>
+        {{ form.username.label_tag }}
+        <br>
+        {{ form.username }}
+    </div>
+
+    <br>
+
+    <div>
+        {{ form.password.label_tag }}
+        <br>
+        {{ form.password }}
+    </div>
+
+    <br>
+
     <button type="submit">Login</button>
 </form>
 
@@ -9,3 +29,4 @@
     Don't have an account?
     <a href="{% url 'register' %}">Register</a>
 </p>
+{% endblock %}
