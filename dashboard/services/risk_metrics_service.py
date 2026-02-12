@@ -5,7 +5,7 @@ from trades.models import RealizedTrade
 ZERO = Decimal("0.00")
 
 
-def calculate_risk_metrics() -> dict:
+def calculate_risk_metrics(user) -> dict:
     """
     Computes drawdown and risk metrics from realized trades.
 
@@ -19,7 +19,7 @@ def calculate_risk_metrics() -> dict:
     All values are Decimal and normalized for API use.
     """
 
-    qs = RealizedTrade.objects.all()
+    qs = RealizedTrade.objects.filter(user=user)
 
     # ---- Empty dataset guard (correct QuerySet check) ----
     if not qs.exists():

@@ -3,12 +3,16 @@ from decimal import Decimal
 from trades.models import RealizedTrade
 
 
-def get_equity_curve() -> list[dict]:
+def get_equity_curve(user) -> list[dict]:
     """
     Returns cumulative P&L over time.
     Output is frontend-chart friendly.
     """
-    trades = RealizedTrade.objects.order_by("realized_at").values("realized_at", "pnl")
+    trades = (
+        RealizedTrade.objects.filter(user=user)
+        .order_by("realized_at")
+        .values("realized_at", "pnl")
+    )
 
     equity = Decimal("0")
     curve: list[dict] = []

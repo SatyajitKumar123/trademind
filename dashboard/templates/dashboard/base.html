@@ -59,6 +59,12 @@
         <a href="{% url 'dashboard-equity' %}">Equity Curve</a>
         <a href="{% url 'dashboard-risk' %}">Risk Metrics</a>
         <a href="{% url 'dashboard-upload' %}">Upload CSV</a>
+        {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        {% endif %}
     </div>
 </div>
 

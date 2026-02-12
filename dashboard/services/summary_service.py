@@ -5,8 +5,8 @@ from django.db import models
 from trades.models import RealizedTrade
 
 
-def get_dashboard_summary() -> dict:
-    trades = RealizedTrade.objects.all()
+def get_dashboard_summary(user) -> dict:
+    trades = RealizedTrade.objects.filter(user=user)
 
     total_trades = trades.count()
 

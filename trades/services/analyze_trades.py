@@ -3,7 +3,7 @@ from trades.domain.trade_dto import TradeDTO
 from trades.services.pnl_service import persist_realized_pnl
 
 
-def analyze_trades(trades: list[TradeDTO]) -> int:
+def analyze_trades(trades: list[TradeDTO], *, user) -> int:
     engine = FIFOMatchingEngine()
     realized = engine.process(trades)
-    return persist_realized_pnl(realized)
+    return persist_realized_pnl(realized, user=user)

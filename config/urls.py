@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -6,8 +7,18 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from accounts.views import register_view
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Authentication
+    path(
+        "login/",
+        auth_views.LoginView.as_view(template_name="accounts/login.html"),
+        name="login",
+    ),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("register/", register_view, name="register"),
     path("dashboard/", include("dashboard.urls")),
     # OpenAPI schema
     path("api/schema", SpectacularAPIView.as_view(), name="schema"),

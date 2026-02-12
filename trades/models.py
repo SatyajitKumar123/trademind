@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.db import models
 
 
@@ -7,6 +8,10 @@ class Trade(models.Model):
     class Side(models.TextChoices):
         BUY = "BUY"
         SELL = "SELL"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="trades"
+    )
 
     symbol = models.CharField(max_length=50)
     side = models.CharField(max_length=4, choices=Side.choices)
@@ -29,6 +34,12 @@ class Trade(models.Model):
 
 
 class RealizedTrade(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="realized_trades",
+    )
+
     symbol = models.CharField(max_length=50)
 
     quantity = models.PositiveIntegerField()
