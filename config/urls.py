@@ -7,7 +7,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from accounts.views import register_view
+from accounts.views import profile_view, register_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -19,7 +19,9 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", register_view, name="register"),
+    # Dashboard
     path("dashboard/", include("dashboard.urls")),
+    path("profile/", profile_view, name="profile"),
     # OpenAPI schema
     path("api/schema", SpectacularAPIView.as_view(), name="schema"),
     # Swagger UI
