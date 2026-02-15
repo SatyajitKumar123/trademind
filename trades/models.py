@@ -53,3 +53,23 @@ class RealizedTrade(models.Model):
 
     def __str__(self) -> str:
         return f"{self.symbol} PnL {self.pnl}"
+
+
+class UploadedTradeFile(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="uploaded_files",
+    )
+
+    original_name = models.CharField(max_length=225)
+
+    file_hash = models.CharField(max_length=64)
+
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "file_hash")
+
+    def __str__(self):
+        return f"{self.original_name} ({self.user})"
