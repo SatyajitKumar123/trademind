@@ -2,6 +2,7 @@ from io import TextIOWrapper
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -9,6 +10,8 @@ from dashboard.services.equity_curve_service import get_equity_curve
 from dashboard.services.risk_metrics_service import calculate_risk_metrics
 from dashboard.services.summary_service import get_dashboard_summary
 from trades.adapters.registry import list_supported_brokers
+from trades.models import UploadedTradeFile
+from trades.services.file_hashing import compute_file_hash
 from trades.services.ingestion_service import ingest_tradebook
 
 
@@ -23,6 +26,24 @@ def upload_trades_view(request):
             messages.error(request, "CSV file and broker are required.")
             return redirect("dashboard-upload")
 
+        # ---- Compute content hash ----
+        file_hash = compute_file_hash(csv_file)
+
+        # ---- Check for duplicate upload ----
+        try:
+            UploadedTradeFile.objects.create(
+                user=request.user,
+                original_name=csv_file.name,
+                file_hash=file_hash,
+            )
+        except IntegrityError:
+            messages.warning(
+                request,
+                "This file was already uploaded earlier. Duplicate ingestion prevented.",
+            )
+            return redirect("dashboard-home")
+
+        # ---- Ingestion ----
         try:
             text_file = TextIOWrapper(csv_file.file, encoding="utf-8")
             realized_count = ingest_tradebook(
