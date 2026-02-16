@@ -6,12 +6,14 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.authtoken.views import obtain_auth_token
 
 from accounts.views import profile_view, register_view
 
 urlpatterns = [
+    # Admin
     path("admin/", admin.site.urls),
-    # Authentication
+    # Web Authentication (Session-based)
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="accounts/login.html"),
@@ -19,16 +21,21 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", register_view, name="register"),
-    # Dashboard
-    path("dashboard/", include("dashboard.urls")),
     path("profile/", profile_view, name="profile"),
-    # OpenAPI schema
-    path("api/schema", SpectacularAPIView.as_view(), name="schema"),
-    # Swagger UI
+    # Application Routes
+    path("dashboard/", include("dashboard.urls")),
+    # API Authentication (Token)
+    path("api/token/", obtain_auth_token, name="api-token"),
+    # API Schema & Docs
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
-    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path(
+        "api/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
 ]
