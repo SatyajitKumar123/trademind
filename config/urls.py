@@ -6,11 +6,14 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from rest_framework.authtoken.views import obtain_auth_token
 
 from accounts.views import profile_view, register_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # API authentication
+    path("api/token/", obtain_auth_token, name="api-token"),
     # Authentication
     path(
         "login/",
