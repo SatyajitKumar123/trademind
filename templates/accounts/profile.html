@@ -15,4 +15,26 @@
 <p>Net PnL: {{ summary.net_pnl }}</p>
 <p>Win Rate: {{ summary.win_rate }}</p>
 
+<hr>
+
+<h3>Upload History</h3>
+
+{% if uploads %}
+<table border="1" cellpadding="6" cellspacing="0">
+    <tr>
+        <th>File Name</th>
+        <th>Uploaded At</th>
+    </tr>
+    {% for file in uploads %}
+    <tr>
+        <td>{{ file.original_name }}</td>
+        <td>{{ file.uploaded_at }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No uploads yet.</p>
+{% endif %}
+
+
 {% endblock %}
