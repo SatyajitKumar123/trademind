@@ -4,6 +4,7 @@ cfgv==3.5.0
 distlib==0.4.0
 django==6.0
 djangorestframework==3.16.1
+djangorestframework-simplejwt==5.5.1
 drf-spectacular==0.29.0
 filelock==3.20.3
 identify==2.6.16
@@ -19,6 +20,7 @@ pre-commit==4.5.1
 psycopg==3.2.3
 psycopg-binary==3.2.3
 pygments==2.19.2
+pyjwt==2.11.0
 pytest==9.0.2
 pytest-django==4.11.1
 python-dotenv==1.2.1
