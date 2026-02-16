@@ -7,6 +7,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from accounts.views import profile_view, register_view
 
@@ -26,6 +27,9 @@ urlpatterns = [
     path("dashboard/", include("dashboard.urls")),
     # API Authentication (Token)
     path("api/token/", obtain_auth_token, name="api-token"),
+    # JWT Authentication
+    path("api/jwt/token/", TokenObtainPairView.as_view(), name="jwt-token"),
+    path("api/jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
     # API Schema & Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
