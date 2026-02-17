@@ -1,15 +1,21 @@
 from decimal import Decimal
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from dashboard.services.risk_metrics_service import calculate_risk_metrics
 from trades.models import RealizedTrade
 
+User = get_user_model()
+
 
 @pytest.mark.django_db
 def test_calculate_risk_metrics():
+    user = User.objects.create_user(username="testuser", password="pass")
+
     RealizedTrade.objects.create(
+        user=user,
         symbol="AAPL",
         quantity=10,
         buy_price=Decimal("100"),
@@ -19,6 +25,7 @@ def test_calculate_risk_metrics():
     )
 
     RealizedTrade.objects.create(
+        user=user,
         symbol="AAPL",
         quantity=5,
         buy_price=Decimal("110"),
@@ -27,7 +34,7 @@ def test_calculate_risk_metrics():
         realized_at=timezone.now(),
     )
 
-    metrics = calculate_risk_metrics()
+    metrics = calculate_risk_metrics(user=user)
 
     assert metrics["max_drawdown"] == Decimal("50.00")
     assert metrics["profit_factor"] == Decimal("4.00")
