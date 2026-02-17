@@ -1,15 +1,21 @@
 from decimal import Decimal
 
 import pytest
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from dashboard.services.summary_service import get_dashboard_summary
 from trades.models import RealizedTrade
 
+User = get_user_model()
+
 
 @pytest.mark.django_db
 def test_dashboard_summary_metrics():
+    user = User.objects.create_user(username="testuser", password="pass")
+
     RealizedTrade.objects.create(
+        user=user,
         symbol="AAPL",
         quantity=10,
         buy_price=Decimal("100"),
@@ -19,6 +25,7 @@ def test_dashboard_summary_metrics():
     )
 
     RealizedTrade.objects.create(
+        user=user,
         symbol="AAPL",
         quantity=5,
         buy_price=Decimal("110"),
@@ -27,7 +34,7 @@ def test_dashboard_summary_metrics():
         realized_at=timezone.now(),
     )
 
-    summary = get_dashboard_summary()
+    summary = get_dashboard_summary(user=user)
 
     assert summary["total_trades"] == 2
     assert summary["wins"] == 1
