@@ -25,6 +25,9 @@ urlpatterns = [
     path("profile/", profile_view, name="profile"),
     # Application Routes
     path("dashboard/", include("dashboard.urls")),
+    # API Routes
+    path("api/", include("dashboard.api.urls")),
+    path("api/trades/", include("trades.api.urls")),
     # API Authentication (Token)
     path("api/token/", obtain_auth_token, name="api-token"),
     # JWT Authentication
