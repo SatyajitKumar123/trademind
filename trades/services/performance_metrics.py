@@ -5,12 +5,12 @@ from django.db.models import Avg
 from trades.models import RealizedTrade
 
 
-def get_performance_metrics() -> dict:
+def get_performance_metrics(*, user) -> dict:
     """
     Returns core trading performance metrics derived from realized trades.
     """
-
-    total_trades = RealizedTrade.objects.count()
+    qs = RealizedTrade.objects.filter(user=user)
+    total_trades = qs.count()
 
     if total_trades == 0:
         return {

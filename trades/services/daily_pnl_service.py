@@ -8,6 +8,7 @@ from trades.models import RealizedTrade
 
 def get_daily_pnl(
     *,
+    user,
     symbol: str | None = None,
     start_date: date | None = None,
     end_date: date | None = None,
@@ -21,7 +22,7 @@ def get_daily_pnl(
         "pnl": Decimal
     }
     """
-    qs = RealizedTrade.objects.all()
+    qs = RealizedTrade.objects.filter(user=user)
 
     if symbol:
         qs = qs.filter(symbol=symbol)
