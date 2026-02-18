@@ -28,6 +28,8 @@ urlpatterns = [
     # API Routes
     path("api/", include("dashboard.api.urls")),
     path("api/trades/", include("trades.api.urls")),
+    # Versioned API
+    path("api/v1/", include("config.api_v1_urls")),
     # API Authentication (Token)
     path("api/token/", obtain_auth_token, name="api-token"),
     # JWT Authentication
