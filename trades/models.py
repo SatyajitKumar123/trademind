@@ -62,7 +62,7 @@ class UploadedTradeFile(models.Model):
         related_name="uploaded_files",
     )
 
-    original_name = models.CharField(max_length=225)
+    original_name = models.CharField(max_length=255)
 
     file_hash = models.CharField(max_length=64)
 
@@ -73,3 +73,36 @@ class UploadedTradeFile(models.Model):
 
     def __str__(self):
         return f"{self.original_name} ({self.user})"
+
+
+class UploadJob(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "PENDING"
+        PROCESSING = "PROCESSING"
+        DONE = "DONE"
+        FAILED = "FAILED"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="upload_jobs",
+    )
+
+    file_name = models.CharField(max_length=225)
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
+    realized_trades_count = models.PositiveIntegerField(default=0)
+
+    error_message = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.file_name} ({self.status})"
