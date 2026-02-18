@@ -1,4 +1,5 @@
-from io import TextIOWrapper
+import tempfile
+from pathlib import Path
 
 from django.db import IntegrityError
 from rest_framework import status
@@ -8,21 +9,20 @@ from rest_framework.views import APIView
 
 from trades.models import UploadedTradeFile
 from trades.services.file_hashing import compute_file_hash
-from trades.services.ingestion_service import ingest_tradebook
+from trades.tasks import process_tradebook
+
+from .serializers import TradeUploadSerializer
 
 
 class TradeUploadAPI(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        file = request.FILES.get("file")
-        broker = request.data.get("broker")
+        serializer = TradeUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not file or not broker:
-            return Response(
-                {"detail": "file and broker are required"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        file = serializer.validated_data["file"]
+        broker = serializer.validated_data["broker"]
 
         file_hash = compute_file_hash(file)
 
@@ -38,15 +38,21 @@ class TradeUploadAPI(APIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        text_file = TextIOWrapper(file.file, encoding="utf-8")
+        # Save file to a temporary location
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+        for chunk in file.chunks():
+            tmp.write(chunk)
 
-        realized = ingest_tradebook(
-            user=request.user,
-            file=text_file,
+        file_path = Path(tmp.name)
+
+        # Queue background job
+        process_tradebook.delay(
+            user_id=request.user.id,
+            file_path=str(file_path),
             broker=broker,
         )
 
         return Response(
-            {"realized_trades": realized},
-            status=status.HTTP_201_CREATED,
+            {"detail": "Upload accepted. Processing in background."},
+            status=status.HTTP_202_ACCEPTED,
         )

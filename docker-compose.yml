@@ -12,6 +12,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:16-alpine
@@ -23,6 +24,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: trademind-redis
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:
