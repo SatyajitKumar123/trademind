@@ -1,113 +1,255 @@
 # TradeMind
 
-TradeMind is a backend-first FinTech analytics platform designed to automate **post-trade analysis** for active traders.
+**TradeMind** is a backend system for analyzing trading performance from broker tradebooks.
+It ingests CSV exports (e.g., Zerodha), reconstructs executions using a **FIFO matching engine**, and provides **portfolio analytics APIs** such as P&L, equity curve, and risk metrics.
 
-Unlike basic trading journals, TradeMind focuses on **correct accounting, performance diagnostics, and risk visibility** — starting from raw broker trade data.
-
----
-
-## Core Philosophy
-
-- Backend-first (correctness before UI)
-- Broker-agnostic ingestion
-- Deterministic analytics (no hidden frontend math)
-- Test-driven development
-- Docker-friendly local setup
+Built to demonstrate **production-style backend architecture** using Django, DRF, async processing, and containerization.
 
 ---
 
-## Tech Stack
+## 🚀 Features
 
-- **Python** 3.12
-- **Django** 6.0
-- **PostgreSQL**
-- **Docker & Docker Compose**
-- **uv** (dependency & venv management)
-- **pytest** (testing)
-- **Ruff + pre-commit** (linting & formatting)
+* 📥 **Broker CSV Ingestion**
 
----
+  * Adapter-based parsing (broker-agnostic design)
+  * Normalizes trade data into domain DTOs
 
-## Current Capabilities ✅
+* 🧠 **FIFO Matching Engine**
 
-### Trade Ingestion
-- Broker-agnostic CSV ingestion pipeline
-- Adapter-based normalization layer (Zerodha implemented)
-- Validated parsing with explicit error handling
-- Fully test-covered ingestion flow
+  * Matches BUY ↔ SELL trades deterministically
+  * Generates realized P&L records
 
-### Trade Accounting
-- FIFO trade matching engine
-  - Supports partial & full exits
-  - Handles multiple buy lots
-- Realized trade persistence
-- Decimal-safe financial calculations (no floats)
+* 🔁 **Idempotent Uploads**
 
-### Analytics & Metrics
-- Daily P&L aggregation
-- Dashboard summary metrics:
-  - Total trades
-  - Win count / Loss count
-  - Win % / Loss %
-  - Net P&L
-  - Average win / Average loss
-  - Expectancy
-- **Equity Curve backend API**
-  - Cumulative P&L over time
-  - Chronologically ordered
-  - Frontend chart–ready output
+  * File hashing prevents duplicate ingestion
+  * Ensures consistent analytics (no accidental reprocessing)
 
-### Engineering Quality
-- Full unit test coverage for:
-  - FIFO engine
-  - Ingestion pipeline
-  - Persistence layer
-  - Analytics services
-- Clean domain separation:
-  - Models
-  - DTOs
-  - Services
-  - Analytics engines
-- Dockerized Django + PostgreSQL setup for local development
+* ⚙️ **Asynchronous Processing**
+
+  * Large tradebooks processed via **Celery + Redis**
+  * Upload returns immediately while background job runs
+
+* 🔐 **User-Scoped Data**
+
+  * JWT authentication
+  * Each user sees only their trades and analytics
+
+* 📊 **Analytics APIs**
+
+  * Dashboard summary (win rate, expectancy, net P&L)
+  * Equity curve generation
+  * Risk metrics (drawdown, profit factor, R:R)
+
+* 🐳 **Dockerized Environment**
+
+  * Reproducible setup with Postgres, Redis, Worker
 
 ---
 
-## API Endpoints (Current)
+## 🏗️ Tech Stack
 
-| Endpoint | Description |
-|--------|-------------|
-| `/dashboard/summary/` | High-level performance metrics |
-| `/dashboard/equity-curve/` | Cumulative equity curve data |
-
-All APIs are **read-only**, deterministic, and frontend-ready.
-
----
-
-## What TradeMind Helps Answer
-
-- Am I actually profitable or just lucky?
-- How consistent is my equity growth?
-- Where do I give back profits?
-- Is my strategy statistically sound?
-- What is my real risk profile?
+| Layer            | Technology                     |
+| ---------------- | ------------------------------ |
+| Backend          | Django + Django REST Framework |
+| Database         | PostgreSQL                     |
+| Async Jobs       | Celery + Redis                 |
+| Auth             | JWT (SimpleJWT)                |
+| Containerization | Docker Compose                 |
+| Testing          | Pytest + Django Test Suite     |
 
 ---
 
-## Roadmap (Next)
+## 📐 Architecture Overview
 
-- Risk & drawdown analytics (max drawdown, profit factor, risk–reward)
-- Strategy-level tagging & analytics
-- Async CSV ingestion with background workers
-- Frontend dashboards (Chart.js / ECharts)
-- Multi-user authentication & isolation
+TradeMind follows a **service-layer architecture** to keep business logic independent of Django views.
+
+```
+API Layer (DRF)
+   ↓
+Service Layer (Pure business logic)
+   ↓
+Domain Layer (FIFO engine, DTOs)
+   ↓
+Persistence Layer (Django ORM)
+```
+
+This separation allows:
+
+* Easier testing
+* Reusable logic between UI and APIs
+* Cleaner scaling into microservices later
 
 ---
 
-## Status
+## 🔄 Trade Ingestion Flow
 
-🟢 **Active development**
-This project is being built incrementally with production-grade practices and transparent progress updates.
+```
+Upload CSV
+   ↓
+Compute File Hash (duplicate protection)
+   ↓
+Create UploadJob (PENDING)
+   ↓
+Celery Worker Processes File
+   ↓
+FIFO Matching Engine
+   ↓
+Persist Trades + Realized PnL (atomic transaction)
+   ↓
+Update Job Status → DONE
+```
+
+Atomic transactions ensure **no partial data is saved** if processing fails.
 
 ---
 
-> TradeMind is intentionally built slow and correct — because trading analytics done wrong is worse than no analytics at all.
+## 🔐 Authentication
+
+TradeMind uses **JWT authentication**.
+
+### Get Token
+
+```http
+POST /api/jwt/token/
+```
+
+Body:
+
+```json
+{
+  "username": "your_user",
+  "password": "your_password"
+}
+```
+
+Response:
+
+```json
+{
+  "access": "...",
+  "refresh": "..."
+}
+```
+
+Use token in headers:
+
+```
+Authorization: Bearer <access_token>
+```
+
+---
+
+## 📊 Example API Endpoints
+
+| Endpoint                              | Description         |
+| ------------------------------------- | ------------------- |
+| POST `/api/v1/trades/upload/`         | Upload tradebook    |
+| GET `/api/v1/dashboard/summary/`      | Performance summary |
+| GET `/api/v1/dashboard/equity-curve/` | Equity curve        |
+| GET `/api/v1/dashboard/risk-metrics/` | Risk analysis       |
+| GET `/api/v1/trades/upload/<job_id>/` | Upload job status   |
+
+---
+
+## 🐳 Running With Docker (Recommended)
+
+### 1️⃣ Create environment file
+
+Create `.env.docker`:
+
+```
+POSTGRES_DB=trademind
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DJANGO_SECRET_KEY=dev-secret
+```
+
+### 2️⃣ Build and start services
+
+```bash
+docker compose up --build
+```
+
+### 3️⃣ Run migrations
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+### 4️⃣ Create superuser
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+---
+
+## 💻 Running Locally (Without Docker)
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start Postgres & Redis, then:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+celery -A config worker -l info
+```
+
+---
+
+## 🧪 Running Tests
+
+```bash
+pytest
+```
+
+Tests cover:
+
+* FIFO matching correctness
+* Upload deduplication
+* Analytics calculations
+* API authentication flows
+
+---
+
+## 📊 Key Design Decisions
+
+### Why FIFO Matching?
+
+Markets settle positions FIFO; accurate realized P&L requires deterministic lot matching.
+
+### Why Background Jobs?
+
+Tradebooks can contain thousands of rows — async processing prevents API blocking.
+
+### Why File Hashing Instead of Filename Check?
+
+Broker exports may reuse filenames. Hashing ensures validation based on **content**, not metadata.
+
+### Why Service Layer?
+
+Prevents “fat views / fat models” and keeps domain logic testable.
+
+---
+
+## 📌 Future Improvements
+
+* Broker adapters for more platforms
+* Real-time trade ingestion
+* Strategy tagging & journaling
+* WebSocket progress tracking
+* Portfolio-level analytics
+
+---
+
+## 👤 Author
+
+**Satyajit Kumar**
+Backend Developer (Python/Django)
+
+Focused on building reliable, production-style backend systems with clear architecture and data integrity.
