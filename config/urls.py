@@ -6,15 +6,13 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from accounts.views import profile_view, register_view
 
 urlpatterns = [
     # Admin
     path("admin/", admin.site.urls),
-    # Web Authentication (Session-based)
+    # Web Authentication (Session-based for UI)
     path(
         "login/",
         auth_views.LoginView.as_view(template_name="accounts/login.html"),
@@ -23,19 +21,11 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("register/", register_view, name="register"),
     path("profile/", profile_view, name="profile"),
-    # Application Routes
+    # Application Routes (UI)
     path("dashboard/", include("dashboard.urls")),
-    # API Routes
-    path("api/", include("dashboard.api.urls")),
-    path("api/trades/", include("trades.api.urls")),
-    # Versioned API
+    # API Routes - ALL UNDER VERSIONING
     path("api/v1/", include("config.api_v1_urls")),
-    # API Authentication (Token)
-    path("api/token/", obtain_auth_token, name="api-token"),
-    # JWT Authentication
-    path("api/jwt/token/", TokenObtainPairView.as_view(), name="jwt-token"),
-    path("api/jwt/refresh/", TokenRefreshView.as_view(), name="jwt-refresh"),
-    # API Schema & Docs
+    # API Schema & Docs (keep these at root, they're not versioned)
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
