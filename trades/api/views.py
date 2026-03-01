@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -70,6 +70,14 @@ class TradeUploadAPI(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
+
+
+class UploadJobListAPI(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UploadJobSerializer
+
+    def get_queryset(self):
+        return UploadJob.objects.filter(user=self.request.user).order_by("-created_at")
 
 
 class UploadJobDetailAPI(APIView):
