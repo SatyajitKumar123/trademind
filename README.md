@@ -6,6 +6,8 @@ It ingests CSV exports (e.g., Zerodha), reconstructs executions using a **FIFO m
 Built to demonstrate **production-style backend architecture** using Django, DRF, async processing, and containerization.
 
 ---
+![trademind dashboard](./trademind.png)
+---
 
 ## 🚀 Features
 
